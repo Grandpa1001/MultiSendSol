@@ -1,0 +1,2 @@
+# MultiSendSol
+ Wysylanie wiele transakcji
