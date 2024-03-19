@@ -1,5 +1,5 @@
 # MultiSendSol
-Sent many transakction to list wallets from file
+Send many transakction to list wallets from file
 
 
  1. First step open console  on project and write
@@ -8,7 +8,7 @@ Sent many transakction to list wallets from file
 
 The first line is not edited (wallets,value)
 
-## example
+example
 wallet,value
 7tqro37954a1jkFfMnVmDWuKb5AmYvmbs7fY2qnRwMtZ,0.01
  ...
