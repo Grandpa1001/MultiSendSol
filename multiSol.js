@@ -1,14 +1,12 @@
 require('dotenv').config();
 const fs = require('fs');
 const parse = require('csv-parser');
-const { Connection, PublicKey, Transaction, SystemProgram, Keypair, sendAndConfirmTransaction, clusterApiUrl } = require('@solana/web3.js');
-const {createTransferInstruction} = require ('@solana/spl-token');
+const { Connection, PublicKey, Keypair } = require('@solana/web3.js');
+const { getOrCreateAssociatedTokenAccount, transfer} = require ('@solana/spl-token');
 const bs58 = require("bs58");
-
 
 // Tu zmieniamy  czy to ma byc main czy test
 const connection = new Connection("https://api.devnet.solana.com "); // dev https://api.devnet.solana.com test https://api.testnet.solana.com   main  
-
 
 fs.createReadStream('wallets.csv')
   .pipe(parse())
@@ -18,26 +16,30 @@ fs.createReadStream('wallets.csv')
     const privateKey = new Uint8Array(bs58.decode(process.env.PRIVATE_KEY));
     const account = Keypair.fromSecretKey(privateKey);
     const mintAddress=new PublicKey(process.env.MINT_ADDRESS);
-    const tokenProgram=new PublicKey(process.env.TOKEN_PROGRAM);
 
-    // Utwórz instrukcję transferu
-    const transferInstruction = createTransferInstruction(
-        tokenProgram,
-        mintAddress,
-        account.publicKey,
-        valueToSend,
-        recipient,
-      );
 
-   // Utwórz transakcję i dodaj instrukcję transferu
-   const transaction = new Transaction().add(transferInstruction);
+    const addRecipientToAcct = await getOrCreateAssociatedTokenAccount(
+      connection,
+      account,
+      mintAddress,
+      recipient
+    );
 
-   // Podpisz i wyślij transakcję
-   const signature = await sendAndConfirmTransaction(
-     connection,
-     transaction,
-     [account]
-   );
+    const addSenderToAcct = await getOrCreateAssociatedTokenAccount(
+      connection,
+      account,
+      mintAddress,
+      account.publicKey
+    );
+
+    const tranferToken = await transfer(
+      connectionCluster,
+      senderKeypair,
+      addSenderToAcct.address,
+      addRecipientToAcct.address,
+      senderKeypair.publicKey,
+      valueToSend * 100000
+    );
 
     console.log('Transakcja wysłana:', signature);
   })
